@@ -66,6 +66,9 @@ const uint8_t PIN_SS = 10; // spi select pin
 volatile unsigned long delaySent = 0;
 int16_t sentNum = 0; // todo check int type
 
+unsigned long ref = 100;
+unsigned long len = 100;
+
 device_configuration_t DEFAULT_CONFIG = {
     false,
     true,
@@ -122,10 +125,10 @@ void handleSent() {
 void transmit() {
   // transmit some data
   Serial.print("Transmitting packet ... #"); Serial.println(sentNum);
-  String msg = "Hello DW1000Ng, it's #"; msg += sentNum;
+  String msg = "Msg#"; msg += sentNum;
   DW1000Ng::setTransmitData(msg);
   // delay sending the message for the given amount
-  delay(1000);
+  //delay(100);
   DW1000Ng::startTransmit(TransmitMode::IMMEDIATE);
   delaySent = millis();
   while(!DW1000Ng::isTransmitDone()) {
@@ -138,7 +141,11 @@ void transmit() {
 }
 
 void loop() {
-    transmit();
+    if(ref + len <= millis()){
+      ref = millis();
+      transmit();
+    }
+    
     // update and print some information about the sent message
     Serial.print("ARDUINO delay sent [ms] ... "); Serial.println(millis() - delaySent);
     uint64_t newSentTime = DW1000Ng::getTransmitTimestamp();

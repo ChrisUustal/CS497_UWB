@@ -114,8 +114,10 @@ void loop() {
   numReceived++;
   // get data as string
   DW1000Ng::getReceivedData(message);
-  Serial.print("Received message ... #"); Serial.println(numReceived);
-  Serial.print("Data is ... "); Serial.println(message);
-  Serial.print("RX power is [dBm] ... "); Serial.println(DW1000Ng::getReceivePower());
-  Serial.print("Signal quality is ... "); Serial.println(DW1000Ng::getReceiveQuality());
+  //Serial.print("Received message ... #"); Serial.println(numReceived);
+  //Serial.print("Data is ... "); 
+  Serial.print(millis());
+  Serial.println(message);
+  //Serial.print("RX power is [dBm] ... "); Serial.println(DW1000Ng::getReceivePower());
+  //Serial.print("Signal quality is ... "); Serial.println(DW1000Ng::getReceiveQuality());
 }
