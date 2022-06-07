@@ -25,6 +25,12 @@ const uint8_t PIN_SS = 10; // spi select pin
 #define RANGE 2
 #define RANGE_REPORT 3
 #define RANGE_FAILED 255
+
+const int dist_ar_size = 50;
+double my_dist = 0.0;
+double dist_ar[dist_ar_size];
+int dist_ar_pos = 0;
+
 // message flow state
 volatile byte expectedMsgId = POLL;
 // message sent/received state
@@ -83,6 +89,9 @@ unsigned long t2 = 1000;
 void setup() {
     // DEBUG monitoring
     Serial.begin(115200);
+    for(int i = 0; i < dist_ar_size; i++){
+      dist_ar[i] = 0.0;
+    }
     delay(1000);
     Serial.println(F("### DW1000Ng-arduino-ranging-anchor ###"));
     // initialize the driver
@@ -228,7 +237,30 @@ void loop() {
                 rangeString += "\t RX power: "; rangeString += DW1000Ng::getReceivePower(); rangeString += " dBm";
                 rangeString += "\t Sampling: "; rangeString += samplingRate; rangeString += " Hz";
                 //Serial.println(rangeString); /* COMMENTED THIS OUT */
-                Serial.println(distance);
+                
+                if(distance > 1.0){
+                  //Serial.println(distance);
+                  my_dist = 100.0*distance;
+                }  else {
+                  my_dist = 62.0*distance + 38.0;
+                  //Serial.println(my_dist);
+                }
+                
+                dist_ar[dist_ar_pos] = my_dist;
+                if(dist_ar_pos < dist_ar_size - 1){
+                  dist_ar_pos++;
+                } else {
+                  dist_ar_pos = 0;
+                }
+
+                double dist_avg = 0.0;
+                for(int i = 0; i < dist_ar_size; i++){
+                  dist_avg += dist_ar[i];
+                }
+                
+                dist_avg /= dist_ar_size;
+                Serial.println(dist_avg);
+                
                 //Serial.print("FP power is [dBm]: "); Serial.print(DW1000Ng::getFirstPathPower());
                 //Serial.print("RX power is [dBm]: "); Serial.println(DW1000Ng::getReceivePower());
                 //Serial.print("Receive quality: "); Serial.println(DW1000Ng::getReceiveQuality());
